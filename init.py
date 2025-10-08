@@ -23,7 +23,7 @@ __description__ = "Class Tracker Function Library for INST326"
 __license__ = "MIT"
 
 # Import main functions for easy access
-from .class_tracker_library import (
+from library_name import (
     # Simple Utility Functions
     validate_email,
     format_course_code,
