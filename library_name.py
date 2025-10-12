@@ -649,54 +649,149 @@ def calculate_grade_projection(assignments: List[Dict],
         'total_weight': round(total_weight, 2)
     }
 
-
 # ============================================================================
-# EXAMPLE USAGE (for testing purposes)
+# DEMONSTRATION FUNCTIONS
 # ============================================================================
 
-if __name__ == "__main__":
-    # Example usage of functions
-    print("=== Class Tracker Function Library ===\n")
+def demo_validation_functions():
+    """Demonstrate email validation and formatting functions."""
+    print(" VALIDATION & FORMATTING DEMO")
+    print("=" * 50)
     
-    # Test simple functions
-    print("1. Email Validation:")
-    print(f"   Valid: {validate_email('student@umd.edu')}")
-    print(f"   Invalid: {validate_email('invalid-email')}")
+    print("\nEmail Validation:")
+    print(f"  Valid email: {validate_email('student@umd.edu')}")
+    print(f"  Invalid email: {validate_email('not-an-email')}")
     
-    print("\n2. Course Code Formatting:")
-    print(f"   Formatted: {format_course_code('inst326')}")
+    print("\nCourse Code Formatting:")
+    print(f"  'inst326' formatted: {format_course_code('inst326')}")
+    print(f"  'cmsc131' formatted: {format_course_code('cmsc131')}")
     
-    print("\n3. Credit Calculation:")
-    print(f"   Total Credits: {calculate_credits_total([3.0, 4.0, 3.0, 1.0])}")
+    print("\nCredit Calculation:")
+    credits = [3.0, 4.0, 3.0, 1.0]
+    total = calculate_credits_total(credits)
+    print(f"  Credits {credits}: Total = {total}")
+
+
+def demo_assignment_management():
+    """Demonstrate assignment tracking and priority functions."""
+    print("\n\n ASSIGNMENT MANAGEMENT DEMO")
+    print("=" * 50)
     
-    # Test medium complexity functions
-    print("\n4. Assignment Priority:")
-    priority = calculate_assignment_priority('2025-10-15', 25.0, 'not_started')
-    print(f"   Priority: {priority}")
+    print("\nAssignment Priority Calculation:")
+    priority1 = calculate_assignment_priority('2025-10-15', 25.0, 'not_started')
+    priority2 = calculate_assignment_priority('2025-10-13', 40.0, 'in_progress')
+    print(f"  Due 10/15, 25% weight, not started: {priority1}")
+    print(f"  Due 10/13, 40% weight, in progress: {priority2}")
     
-    print("\n5. Meeting Time Parsing:")
-    parsed = parse_meeting_time('MWF 10:00-10:50')
-    print(f"   Parsed: {parsed}")
+    print("\nTime Until Due:")
+    time_info = calculate_time_until_due('2025-10-15')
+    print(f"  Assignment due 10/15: {time_info[0]} {time_info[1]}")
     
-    # Test complex functions
-    print("\n6. Weekly Schedule Generation:")
-    courses = [
-        {'course_code': 'INST326', 'meeting_time': 'TuTh 2:00-3:15', 'location': 'HBK 0104'},
-        {'course_code': 'INST314', 'meeting_time': 'MWF 11:00-11:50', 'location': 'HJP 1104'}
-    ]
-    schedule = generate_weekly_schedule(courses)
-    print(f"   Tuesday classes: {len(schedule['Tuesday'])}")
-    
-    print("\n7. Assignment Reminders:")
+    print("\nAssignment Reminders:")
     assignments = [
-        {'title': 'Project 1', 'due_date': '2025-10-10', 'course_code': 'INST326', 'status': 'in_progress'},
-        {'title': 'Quiz 2', 'due_date': '2025-10-09', 'course_code': 'INST314', 'status': 'not_started'}
+        {'title': 'Project 1', 'due_date': '2025-10-15', 'course_code': 'INST326', 'status': 'in_progress'},
+        {'title': 'Quiz 2', 'due_date': '2025-10-19', 'course_code': 'INST314', 'status': 'not_started'},
+        {'title': 'Essay', 'due_date': '2025-10-13', 'course_code': 'ENGL101', 'status': 'not_started'}
     ]
     reminders = generate_assignment_reminders(assignments)
-    print(f"   Generated {len(reminders)} reminders")
-    
-    print("\n=== All functions loaded successfully ===")
-        
-    
+    print(f"  Generated {len(reminders)} reminders")
+    for reminder in reminders[:2]:  # Show first 2
+        print(f"    - {reminder['message']}")
 
 
+def demo_schedule_management():
+    """Demonstrate schedule generation and time parsing."""
+    print("\n\n SCHEDULE MANAGEMENT DEMO")
+    print("=" * 50)
+    
+    print("\nMeeting Time Parsing:")
+    parsed1 = parse_meeting_time('MWF 10:00-10:50')
+    parsed2 = parse_meeting_time('TuTh 2:00-3:15')
+    print(f"  'MWF 10:00-10:50': {parsed1}")
+    print(f"  'TuTh 2:00-3:15': {parsed2}")
+    
+    print("\nWeekly Schedule Generation:")
+    courses = [
+        {'course_code': 'INST326', 'meeting_time': 'TuTh 2:00-3:15', 'location': 'HBK 0104'},
+        {'course_code': 'INST314', 'meeting_time': 'MWF 11:00-11:50', 'location': 'HJP 1104'},
+        {'course_code': 'CMSC131', 'meeting_time': 'MWF 9:00-9:50', 'location': 'CSI 2117'}
+    ]
+    schedule = generate_weekly_schedule(courses)
+    print(f"  Total courses: {len(courses)}")
+    print(f"  Monday classes: {len(schedule['Monday'])}")
+    print(f"  Tuesday classes: {len(schedule['Tuesday'])}")
+    print(f"  Wednesday classes: {len(schedule['Wednesday'])}")
+
+
+def demo_workload_analysis():
+    """Demonstrate workload distribution and grade projection."""
+    print("\n\n WORKLOAD & GRADE ANALYSIS DEMO")
+    print("=" * 50)
+    
+    print("\nWorkload Distribution (Next 7 Days):")
+    assignments = [
+        {'title': 'Project 1', 'due_date': '2025-10-15', 'estimated_hours': 5.0, 'status': 'in_progress'},
+        {'title': 'Quiz 2', 'due_date': '2025-10-16', 'estimated_hours': 2.0, 'status': 'not_started'},
+        {'title': 'Essay', 'due_date': '2025-10-18', 'estimated_hours': 4.0, 'status': 'not_started'}
+    ]
+    workload = calculate_workload_distribution(assignments, 7)
+    print(f"  Assignments tracked: {len(assignments)}")
+    total_hours = sum(workload.values())
+    print(f"  Total hours upcoming: {total_hours}")
+    
+    print("\nGrade Projection:")
+    grade_assignments = [
+        {'weight': 20.0, 'status': 'completed', 'score': 85.0},
+        {'weight': 20.0, 'status': 'completed', 'score': 90.0},
+        {'weight': 30.0, 'status': 'in_progress', 'score': 0},
+        {'weight': 30.0, 'status': 'not_started', 'score': 0}
+    ]
+    projection = calculate_grade_projection(grade_assignments)
+    print(f"  Current grade: {projection['current_percentage']}%")
+    print(f"  Projected final grade: {projection['projected_percentage']}% ({projection['letter_grade']})")
+    print(f"  Completed: {projection['completed_weight']}% of total")
+
+
+def demo_resource_organization():
+    """Demonstrate resource organization by course and type."""
+    print("\n\n RESOURCE ORGANIZATION DEMO")
+    print("=" * 50)
+    
+    resources = [
+        {'course_code': 'INST326', 'resource_type': 'textbook', 'title': 'Python Programming', 'url': 'http://example.com'},
+        {'course_code': 'INST326', 'resource_type': 'video', 'title': 'OOP Tutorial', 'url': 'http://example.com'},
+        {'course_code': 'CMSC131', 'resource_type': 'article', 'title': 'Java Basics', 'url': 'http://example.com'},
+        {'course_code': 'INST326', 'resource_type': 'document', 'title': 'Project Guidelines', 'url': 'http://example.com'}
+    ]
+    
+    organized = organize_resources_by_course(resources)
+    print(f"\nTotal resources: {len(resources)}")
+    print(f"Courses with resources: {len(organized)}")
+    
+    for course_code in organized:
+        total = sum(len(resources) for resources in organized[course_code].values())
+        print(f"  {course_code}: {total} resources")
+
+
+def main():
+    """Run all demonstration functions."""
+    print("CLASS TRACKER FUNCTION LIBRARY - DEMONSTRATION")
+    print("=" * 60)
+    print("This demo shows how our function library manages student schedules,")
+    print("assignments, workload, grades, and resources.")
+    
+    demo_validation_functions()
+    demo_assignment_management()
+    demo_schedule_management()
+    demo_workload_analysis()
+    demo_resource_organization()
+    
+    print("\n" + "=" * 60)
+    print("DEMO COMPLETE!")
+    print("This function library provides the foundation for managing")
+    print("college student schedules, assignments, courses, and resources.")
+    print("=" * 60)
+
+
+if __name__ == "__main__":
+    main()
