@@ -6,6 +6,7 @@ Team Members: Jocelyn DeHenzel, Rhea Vyragaram, Vinindi Withanage, Kayla Fuentes
 Roles:
 Jocelyn DeHenzel- I helped to use AI to create initial functions, created and wrote the README file, and update GitHub commits reguarly. 
 Vinindi Withanage - I edited some of the errors in the code.  
+Rhea Vyragaram- I helped organize which functions needed to go into the init file. 
 Problem Statement: College students often struggle with keeping track of their assignments 
 due to outside commitments such as jobs and clubs. 
 
