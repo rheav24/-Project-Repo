@@ -1,3 +1,4 @@
+"""
 Student Class Module
 INST326 - Project 2: OOP Class Implementation
 
