@@ -1,1 +1,46 @@
+# Project 3 — Architecture & Design Rationale
+
+## Overview
+This project refactors the Project 1/2 code into a small object-oriented system demonstrating:
+- **Inheritance**: `AbstractTask` → `Assignment`, `Exam`, `Project`
+- **Polymorphism**: `get_priority()` and `calculate_time_remaining()` are defined on the base type and implemented/overridden in derived types.
+- **Composition**: `Student` has assignments and courses; `Course` has tasks and study groups; `StudyGroup` has members and meetings.
+
+## Inheritance Hierarchy
+AbstractTask (ABC)
+├─ Assignment (concrete)
+│ ├─ Exam (specialization)
+│ └─ Project (specialization)
+
+
+### Why this hierarchy?
+- There is a true "is-a" relationship: each derived class *is-a* kind of task.
+- Behavior common to all tasks (title, due date, weight) is placed in the abstract base; specialized behavior (exam criticality, project estimated-hours) is in derived classes.
+
+## Polymorphism
+- Code can hold references to `AbstractTask` or `Assignment` and call `get_priority()`. The call dispatches to the correct derived implementation at runtime.
+- Tests show lists of heterogenous tasks can be processed uniformly.
+
+## Composition vs Inheritance decisions
+- `Student` **has-a** list of assignments and courses. It is not a subtype of a course or a task; composition is correct.
+- `Course` **has-a** list of tasks and study groups; again, not an "is-a" relationship.
+- Composition keeps hierarchies shallow and responsibilities clear.
+
+## Use of super()
+- Derived classes call `super().__init__()` to initialize common fields from the base class and avoid duplication.
+
+## Tests
+- `tests/*` include unit tests for:
+  - Abstract class enforcement
+  - Inheritance correctness
+  - Polymorphic behavior
+  - Composition relationships
+  - Integration example demonstrating typical workflow
+
+## How this meets project requirements
+- **Inheritance Hierarchy**: implemented via `AbstractTask` + 3 derived classes.
+- **Abstract Base Classes**: `AbstractTask` uses `abc`.
+- **Polymorphism**: demonstrated in tests and integration example.
+- **Composition**: `Student` & `Course` relationships implemented and tested.
+
 
