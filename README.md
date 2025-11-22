@@ -1,51 +1,98 @@
-Project Title: Class Tracker
-The Class Tracker is a system that helps college students manage their classes and assignments throughout 
-the semester. Some of the features are that it validates email addresses and generates weekly schedules.
+# Project 3: Class Tracker
 
-Team Members: Jocelyn DeHenzel, Rhea Vyragaram, Vinindi Withanage, Kayla Fuentes
-Roles:
-Jocelyn DeHenzel- I helped to use AI to create initial functions, created and wrote the README file, and update GitHub commits reguarly. 
-Vinindi Withanage - I edited some of the errors in the code.  
-Rhea Vyragaram- I helped organize which functions needed to go into the init file. 
-Problem Statement: College students often struggle with keeping track of their assignments 
-due to outside commitments such as jobs and clubs. 
+This repository contains the implementation for Project 3, which demonstrates advanced object-oriented programming concepts including subclassing, method overriding, polymorphism, composition vs. inheritance decisions, and abstract base classes.
 
-Installation and setup instructions: This library requires Python 3.6 or higher.
+The project models a small class‑management system involving **Students**, **Courses**, and various **Task types** (Assignments, Exams, Projects). The system includes a reusable utilities module and a structured test suite using **pytest**.
 
-Usage examples for key functions:
+---
 
-# Validate an email address
-is_valid = validate_email('student@umd.edu')  # Returns: True
+## 📁 Repository Structure
 
-# Format a course code
-formatted = format_course_code('inst326')  # Returns: 'INST326'
+```
+project-repo/
+├── README.md
+├── docs/
+│   └── architecture.txt
+├── src/
+│   ├── __init__.py
+│   ├── abstract_base.py
+│   ├── course.py
+│   ├── student.py
+│   ├── tasks.py
+│   └── utils.py
+└── tests/
+    ├── test_inheritance.py
+    ├── test_polymorphism.py
+    └── test_composition.py
+```
 
-# Calculate total credits
-total = calculate_credits_total([3.0, 4.0, 3.0, 1.0])  # Returns: 11.0
+---
 
-Function library overview and organization: 
+## ✨ Features Implemented
 
-Simple Functions
-Email Validation - Verify email address formats
-Course Code Formatting - Standardize course codes to uppercase
-Credit Calculation - Sum total credits from course lists
-Assignment Status Checking - Determine if assignments are overdue
-Study Group ID Generation - Create unique identifiers for study groups
+### 1. Inheritance & Subclassing
 
-Medium Complexity Functions
-Assignment Priority Calculation - Determine priority levels based on due dates and weights
-Meeting Time Parsing - Convert time strings into structured data
-Assignment Filtering - Filter assignments by completion status
-Time Until Due Calculation - Calculate remaining time for assignments
-Course Data Validation - Verify course information integrity
+* Abstract base class `AbstractTask`
+* Three subclasses: `Assignment`, `Exam`, `Project`
+* Specialized implementations for each class
 
-Complex Functions
-Weekly Schedule Generation - Create organized schedules from course data
-Workload Distribution Analysis - Calculate work hours across upcoming days
-Assignment Reminder System - Generate timely reminders for due assignments
-Resource Organization - Organize course materials by type and course
-Grade Projection Calculator - Project final grades based on completed work
+### 2. Polymorphism
 
-Contribution guidelines for team members:
-Everyone should have contributed to the README individually. 
-Jocelyn, Rhea, and Vinindi worked together in person to collaborate on creating AI prompts to help write the functions and to upload the functions together. 
+* All task types override `calculate_weight()` and `summary()`
+* Works interchangeably through shared interface
+
+### 3. Composition vs. Inheritance
+
+* Students *contain* Courses (composition)
+* Courses *contain* Task lists (composition)
+* Utilities such as email validation and course-code formatting are shared through composition (not inheritance)
+
+### 4. Method Overriding & super()
+
+* Subclasses extend base methods
+* Shared logic kept in the abstract parent class
+
+### 5. Reusable Helper Module
+
+* `utils.py` contains:
+
+  * `format_course_code()`
+  * `validate_email()`
+
+### 6. Test Suite Using pytest
+
+* Tests inheritance behavior
+* Tests polymorphism
+* Tests composition relationships
+
+---
+
+## ▶️ Running the Project
+
+### Install Dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### Run Tests
+
+```
+pytest -v
+```
+
+---
+
+## 📘 Documentation
+
+More detailed technical explanations are available in:
+
+➡️ `docs/architecture.txt`
+
+---
+
+## 👥 Authors
+
+Class Tracker team — INST326
+Jocelyn DeHenzel, Kayla Fuentes, Rhea Vyragaram, Vinindi Withanage
+
