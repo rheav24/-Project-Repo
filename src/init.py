@@ -109,3 +109,20 @@ COLLABORATION_FUNCTIONS = [
     'generate_study_group_id'
 ]
 
+"""Class Tracker package for Project 3."""
+
+from .utils import format_course_code, validate_email
+from .abstract_task import AbstractTask
+from .tasks import Assignment, Exam, Project
+from .course import Course
+from .student import Student
+from .schedule import Schedule
+from .studygroup import StudyGroup
+
+__all__ = [
+    "format_course_code", "validate_email",
+    "AbstractTask", "Assignment", "Exam", "Project",
+    "Course", "Student", "Schedule", "StudyGroup"
+]
+
+
