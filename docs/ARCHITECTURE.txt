@@ -1,46 +1,531 @@
-# Project 3 — Architecture & Design Rationale
+# Project 3: Architecture Documentation
+## Class Tracker - Inheritance and Polymorphism
 
-## Overview
-This project refactors the Project 1/2 code into a small object-oriented system demonstrating:
-- **Inheritance**: `AbstractTask` → `Assignment`, `Exam`, `Project`
-- **Polymorphism**: `get_priority()` and `calculate_time_remaining()` are defined on the base type and implemented/overridden in derived types.
-- **Composition**: `Student` has assignments and courses; `Course` has tasks and study groups; `StudyGroup` has members and meetings.
+**Team Members:** Kayla Fuentes, Rhea Vyragaram, Jocelyn DeHenzel, Vinindi Withanage  
+**Course:** INST326 - Object-Oriented Programming  
+**Project:** Project 3 - Inheritance, Polymorphism, and Composition
 
-## Inheritance Hierarchy
-AbstractTask (ABC)
-├─ Assignment (concrete)
-│ ├─ Exam (specialization)
-│ └─ Project (specialization)
+---
+
+## Table of Contents
+1. [System Overview](#system-overview)
+2. [Inheritance Hierarchies](#inheritance-hierarchies)
+3. [Abstract Base Classes](#abstract-base-classes)
+4. [Polymorphic Behavior](#polymorphic-behavior)
+5. [Composition Relationships](#composition-relationships)
+6. [Design Decisions](#design-decisions)
+7. [Class Relationships Diagram](#class-relationships-diagram)
+
+---
+
+## System Overview
+
+The Class Tracker system has been enhanced with advanced OOP principles to create a flexible, scalable architecture for managing student academic items. The system now features:
+
+- **Abstract base classes** defining common interfaces
+- **Inheritance hierarchies** enabling code reuse and specialization
+- **Polymorphic behavior** allowing different item types to be processed uniformly
+- **Composition relationships** for managing collections of related objects
+
+### Key Components
+
+1. **AcademicItem (Abstract Base Class)** - Defines the interface for all academic work
+2. **Assignment, Project, Exam (Derived Classes)** - Specialized implementations
+3. **AcademicPlanner (Composition)** - Manages collections of academic items
+4. **Student, Course** (from Project 2) - Enhanced with new item types
+
+---
+
+## Inheritance Hierarchies
+
+### Primary Hierarchy: AcademicItem Family
+
+```
+AcademicItem (Abstract Base Class)
+    ├── Assignment (regular homework with time estimates)
+    ├── Project (multi-phase work with milestones)
+    └── Exam (assessments with study requirements)
+```
+
+### Rationale for Inheritance
+
+We chose this hierarchy because:
+
+1. **True "is-a" relationships**: An Assignment IS-A type of AcademicItem, a Project IS-A type of AcademicItem, etc.
+
+2. **Common attributes and behaviors**: All academic items share:
+   - Title, due date, course code
+   - Weight/percentage
+   - Completion status
+   - Time tracking capabilities
+   - Priority calculation
+
+3. **Specialized requirements**: Each type has unique needs:
+   - **Assignments**: estimated hours, notes, instructions
+   - **Projects**: milestones, team size, repository URL
+   - **Exams**: exam type, study materials, number of chapters
+
+4. **Consistent interface**: All can be processed through the same interface while maintaining type-specific behavior
+
+### Hierarchy Depth
+
+We kept the hierarchy at **2 levels** (base + derived) to avoid:
+- Deep inheritance chains that are hard to understand
+- Tight coupling between many levels
+- The fragile base class problem
+
+Future extensions could add more derived types (e.g., `Quiz` extends `Exam`, `Lab` extends `Assignment`) but we maintained simplicity for this iteration.
+
+---
+
+## Abstract Base Classes
+
+### AcademicItem - The Core Abstraction
+
+```python
+from abc import ABC, abstractmethod
+
+class AcademicItem(ABC):
+    """Abstract base class for all academic items."""
+    
+    @abstractmethod
+    def calculate_time_commitment(self) -> float:
+        """Must be implemented by all subclasses."""
+        pass
+    
+    @abstractmethod
+    def get_priority(self) -> str:
+        """Must be implemented by all subclasses."""
+        pass
+    
+    @abstractmethod
+    def get_item_type(self) -> str:
+        """Must be implemented by all subclasses."""
+        pass
+```
+
+### Why These Methods Are Abstract
+
+1. **calculate_time_commitment()**
+   - **Reason**: Each type calculates time differently
+   - **Assignment**: Uses direct estimated hours
+   - **Project**: Based on milestones and team size
+   - **Exam**: Based on chapters and exam type
+   - **Enforcement**: Ensures all items can report time needs
+
+2. **get_priority()**
+   - **Reason**: Priority logic varies by item type
+   - **Assignment**: Weight and days until due
+   - **Project**: Higher urgency due to complexity
+   - **Exam**: Always high priority approaching date
+   - **Enforcement**: Ensures consistent priority interface
+
+3. **get_item_type()**
+   - **Reason**: Type identification for filtering and display
+   - **Enforcement**: All items can report their type
+
+### Common Concrete Methods
+
+The base class also provides **concrete implementations** that all subclasses inherit:
+
+- `is_overdue()` - Logic is the same for all items
+- `calculate_time_remaining()` - Common calculation
+- `mark_completed()` - Standard completion handling
+- `is_completed()` - Simple status check
+
+This demonstrates the **Template Method** pattern - the base class provides the structure and common operations, while subclasses fill in the specifics.
+
+### Benefits of ABC Usage
+
+1. **Interface enforcement**: Cannot instantiate incomplete subclasses
+2. **Documentation**: Clear contract for what subclasses must provide
+3. **Early error detection**: Missing implementations caught at instantiation
+4. **IDE support**: Better autocomplete and type hints
+
+---
+
+## Polymorphic Behavior
+
+### What is Polymorphism in Our System?
+
+Polymorphism allows us to write code that works with `AcademicItem` references but calls the appropriate derived class methods at runtime.
+
+### Example 1: Time Commitment Calculation
+
+```python
+# All are AcademicItems but calculate time differently
+items = [
+    Assignment('HW1', '2025-12-01', 'INST326', 10.0, estimated_hours=3.0),
+    Project('Final', '2025-12-10', 'INST326', 40.0, num_milestones=3),
+    Exam('Midterm', '2025-11-20', 'INST326', 25.0, num_chapters=5)
+]
+
+# Polymorphic call - same method, different behavior
+for item in items:
+    hours = item.calculate_time_commitment()  # Calls appropriate version
+    print(f"{item.title}: {hours} hours")
+
+# Output:
+# HW1: 3.0 hours         (Assignment logic)
+# Final: 20.5 hours      (Project logic with team size)
+# Midterm: 15.0 hours    (Exam logic with chapters)
+```
+
+**How it works**: Python uses dynamic dispatch to call the correct method based on the object's actual type, not the reference type.
+
+### Example 2: Priority Calculation
+
+```python
+# Same method call, different priority algorithms
+for item in items:
+    priority = item.get_priority()  # Each type has own logic
+```
+
+**Different implementations**:
+- **Assignment**: Based on due date and weight thresholds
+- **Project**: Elevated priority due to complexity
+- **Exam**: Always high priority when approaching
+
+### Example 3: Processing Mixed Collections
+
+```python
+def analyze_workload(items: List[AcademicItem]) -> float:
+    """Works with ANY AcademicItem subclass."""
+    return sum(item.calculate_time_commitment() for item in items)
+
+# Can pass any mix of types
+total_hours = analyze_workload([assignment, project, exam])
+```
+
+### Benefits of Polymorphism
+
+1. **Code reuse**: Write once, works with all types
+2. **Extensibility**: Add new item types without changing existing code
+3. **Maintainability**: Changes localized to specific classes
+4. **Flexibility**: System works with current and future item types
+
+### Method Overriding Rules
+
+Our derived classes follow proper overriding:
+
+```python
+class Project(AcademicItem):
+    def __init__(self, ...):
+        super().__init__(...)  # ✓ Calls parent constructor
+        # Add project-specific initialization
+    
+    def calculate_time_commitment(self) -> float:  # ✓ Overrides abstract method
+        # Project-specific implementation
+        return hours
+```
+
+All derived classes:
+- Call `super().__init__()` to initialize base class
+- Override all abstract methods
+- Can call base class methods when needed
+- Maintain consistent return types
+
+---
+
+## Composition Relationships
+
+### AcademicPlanner "Has-A" AcademicItems
+
+```python
+class AcademicPlanner:
+    def __init__(self, student_name: str):
+        self._items = []  # Composition: planner CONTAINS items
+    
+    def add_item(self, item: AcademicItem):
+        self._items.append(item)  # Stores reference to item
+```
+
+### Why Composition Over Inheritance?
+
+We chose composition for `AcademicPlanner` because:
+
+#### ❌ Inheritance Would Be Wrong
+
+```python
+# BAD: This doesn't make sense
+class AcademicPlanner(AcademicItem):  # A planner is NOT a type of item!
+```
+
+**Problems with inheritance here**:
+1. **No "is-a" relationship**: A planner is NOT an academic item
+2. **Wrong semantics**: Planners don't have due dates or get completed
+3. **Interface mismatch**: Planner behavior is fundamentally different
+4. **Tight coupling**: Would force inappropriate dependencies
+
+#### ✓ Composition Is Correct
+
+```python
+# GOOD: Planner HAS items
+class AcademicPlanner:
+    def __init__(self):
+        self._items = []  # Has-a relationship
+```
+
+**Benefits of composition**:
+1. **Correct semantics**: Planner manages items, doesn't inherit from them
+2. **Flexibility**: Can hold any AcademicItem subclass
+3. **Loose coupling**: Planner and items can change independently
+4. **Clear responsibility**: Planner coordinates, items handle their own behavior
+
+### Composition Examples in Our System
+
+#### 1. Planner Manages Multiple Items
+
+```python
+planner = AcademicPlanner("Jane Smith")
+planner.add_item(assignment)  # Composition
+planner.add_item(project)
+planner.add_item(exam)
+
+# Planner delegates to items polymorphically
+total_hours = planner.get_total_workload()  # Sums item.calculate_time_commitment()
+```
+
+#### 2. Student Has Planner (Could Be Extended)
+
+```python
+# Future extension
+class Student:
+    def __init__(self, name):
+        self._planner = AcademicPlanner(name)  # Student HAS-A planner
+```
+
+#### 3. Course Has Assignments (From Project 2)
+
+```python
+# Existing composition from Project 2
+class Course:
+    def __init__(self):
+        self._resources = []  # Course HAS resources
+```
+
+### Design Pattern: Composite Pattern
+
+`AcademicPlanner` follows aspects of the **Composite Pattern**:
+- Manages a collection of objects (items)
+- Provides aggregate operations (total workload, priority summary)
+- Treats individual items and collections uniformly
+
+---
+
+## Design Decisions
+
+### Decision 1: Number of Derived Classes (3)
+
+**Options considered**:
+- 2 classes (minimum): Too simple, misses complexity
+- 3 classes: ✓ **Chosen** - Good variety, manageable complexity
+- 5+ classes: Over-engineering for this project
+
+**Rationale**: Three classes (Assignment, Project, Exam) provide enough variety to demonstrate polymorphism meaningfully while remaining maintainable.
+
+### Decision 2: Depth of Inheritance (2 Levels)
+
+**Options**:
+- 1 level (no inheritance): Defeats project purpose
+- 2 levels (base + derived): ✓ **Chosen** - Clear and maintainable
+- 3+ levels (deep hierarchy): Overly complex, fragile
+
+**Rationale**: Two levels balances code reuse with simplicity. Deep hierarchies are hard to understand and maintain.
+
+### Decision 3: Abstract vs. Concrete Methods
+
+**Distribution**:
+- **Abstract**: Methods requiring type-specific implementation
+- **Concrete**: Methods with common logic for all types
+
+**Rationale**: This maximizes code reuse while enforcing necessary specialization.
+
+### Decision 4: Composition for AcademicPlanner
+
+**Alternative considered**: Make `AcademicPlanner` inherit from `list`
+
+**Chosen approach**: Composition with internal `_items` list
+
+**Rationale**:
+- More control over interface
+- Can add business logic around item management
+- Clearer intent (planner manages items, isn't just a list)
+- Better encapsulation
+
+### Decision 5: Integration with Project 2 Classes
+
+**Approach**: 
+- Keep Student and Course classes largely unchanged
+- Add new item types that work with existing structure
+- Ensure backward compatibility
+
+**Benefits**:
+- Preserves working Project 2 code
+- Demonstrates extension without modification
+- Real-world evolution of codebase
+
+---
+
+## Class Relationships Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AcademicItem (ABC)                        │
+│  <<abstract>>                                                │
+│  ─────────────────────────────────────────────────────────   │
+│  - _title: str                                               │
+│  - _due_date: str                                            │
+│  - _course_code: str                                         │
+│  - _weight: float                                            │
+│  - _status: str                                              │
+│  ─────────────────────────────────────────────────────────   │
+│  + is_overdue(): bool                                        │
+│  + calculate_time_remaining(): Tuple                         │
+│  + mark_completed(score): void                               │
+│  + calculate_time_commitment(): float  <<abstract>>          │
+│  + get_priority(): str  <<abstract>>                         │
+│  + get_item_type(): str  <<abstract>>                        │
+└─────────────────────────────────────────────────────────────┘
+                            △
+                            │
+                            │ inherits
+            ┌───────────────┼───────────────┐
+            │               │               │
+            │               │               │
+┌───────────▼──────────┐  ┌─▼───────────┐  ┌─▼──────────────┐
+│   Assignment         │  │   Project   │  │    Exam        │
+│ ──────────────────── │  │ ─────────── │  │ ────────────── │
+│ - _estimated_hours   │  │ - _num_mil… │  │ - _exam_type   │
+│ - _notes             │  │ - _team_si… │  │ - _num_chap…   │
+│ - _instructions      │  │ - _mileston │  │ - _study_guide │
+│ ──────────────────── │  │ ─────────── │  │ ────────────── │
+│ + add_notes()        │  │ + add_mile… │  │ + set_study… │
+│ + get_instructions() │  │ + get_mile… │  │ + set_location │
+└──────────────────────┘  └─────────────┘  └────────────────┘
 
 
-### Why this hierarchy?
-- There is a true "is-a" relationship: each derived class *is-a* kind of task.
-- Behavior common to all tasks (title, due date, weight) is placed in the abstract base; specialized behavior (exam criticality, project estimated-hours) is in derived classes.
+┌──────────────────────────────────────────────────────────────┐
+│                  AcademicPlanner                              │
+│  ───────────────────────────────────────────────────────────  │
+│  - _student_name: str                                         │
+│  - _items: List[AcademicItem]    ◆────────┐                  │
+│  ───────────────────────────────────────────────────────────  │
+│  + add_item(item: AcademicItem)           │ composition      │
+│  + get_all_items(): List                  │ (has-a)          │
+│  + calculate_weekly_workload(): Dict      │                  │
+│  + get_priority_summary(): Dict           │                  │
+│  + get_total_workload(): float            │                  │
+└───────────────────────────────────────────┼──────────────────┘
+                                            │
+                                            ▼
+                            ┌───────────────────────────┐
+                            │    AcademicItem           │
+                            │    (any subclass)         │
+                            └───────────────────────────┘
 
-## Polymorphism
-- Code can hold references to `AbstractTask` or `Assignment` and call `get_priority()`. The call dispatches to the correct derived implementation at runtime.
-- Tests show lists of heterogenous tasks can be processed uniformly.
+Legend:
+△ ─── Inheritance (is-a relationship)
+◆ ─── Composition (has-a relationship)
+<<abstract>> ─── Abstract method
+```
 
-## Composition vs Inheritance decisions
-- `Student` **has-a** list of assignments and courses. It is not a subtype of a course or a task; composition is correct.
-- `Course` **has-a** list of tasks and study groups; again, not an "is-a" relationship.
-- Composition keeps hierarchies shallow and responsibilities clear.
+### Relationship Types
 
-## Use of super()
-- Derived classes call `super().__init__()` to initialize common fields from the base class and avoid duplication.
+**Inheritance (△)**:
+- Assignment → AcademicItem
+- Project → AcademicItem
+- Exam → AcademicItem
 
-## Tests
-- `tests/*` include unit tests for:
-  - Abstract class enforcement
-  - Inheritance correctness
-  - Polymorphic behavior
-  - Composition relationships
-  - Integration example demonstrating typical workflow
+**Composition (◆)**:
+- AcademicPlanner has List[AcademicItem]
+- Student has List[Course] (from Project 2)
+- Student has List[Assignment] (from Project 2)
 
-## How this meets project requirements
-- **Inheritance Hierarchy**: implemented via `AbstractTask` + 3 derived classes.
-- **Abstract Base Classes**: `AbstractTask` uses `abc`.
-- **Polymorphism**: demonstrated in tests and integration example.
-- **Composition**: `Student` & `Course` relationships implemented and tested.
+---
 
+## Integration with Project 2
 
+### Enhanced Student Class
+
+The existing `Student` class now works seamlessly with new item types:
+
+```python
+# Project 2 Student class can hold new item types
+student = Student('Jane', 'jane@umd.edu', 'UID123')
+
+# Can add any AcademicItem subclass
+assignment = Assignment('HW1', '2025-12-01', 'INST326', 10.0)
+project = Project('Final', '2025-12-10', 'INST326', 40.0)
+
+student.add_assignment(assignment)  # Still works!
+```
+
+### Backward Compatibility
+
+- All Project 2 functionality preserved
+- New classes extend without breaking existing code
+- Student and Course classes work with new item types
+
+---
+
+## Summary of OOP Principles Applied
+
+### 1. **Abstraction**
+- `AcademicItem` abstracts common academic item behavior
+- Hides implementation details behind clear interface
+
+### 2. **Encapsulation**
+- All attributes are private (`_attribute`)
+- Access controlled through properties and methods
+- Internal state protected from external manipulation
+
+### 3. **Inheritance**
+- Three derived classes extend `AcademicItem`
+- Code reuse through inherited methods
+- Specialization through overridden methods
+
+### 4. **Polymorphism**
+- Same interface, different implementations
+- Dynamic method dispatch at runtime
+- Type-agnostic code in `AcademicPlanner`
+
+### 5. **Composition**
+- `AcademicPlanner` contains `AcademicItems`
+- Flexible "has-a" relationships
+- Loose coupling between components
+
+---
+
+## Testing Strategy
+
+Our test suite validates:
+
+1. **Abstract class enforcement** - Cannot instantiate `AcademicItem`
+2. **Inheritance relationships** - All derived classes are `AcademicItem` instances
+3. **Polymorphic behavior** - Same methods produce type-specific results
+4. **Composition** - Planner correctly manages item collections
+5. **Validation** - Input checking and error handling
+6. **Specialized behavior** - Each class's unique features
+
+See `test_project3.py` for comprehensive test cases.
+
+---
+
+## Future Extensions
+
+Potential enhancements while maintaining current architecture:
+
+1. **New item types**: Quiz (extends Exam), Lab (extends Assignment)
+2. **Notification system**: Observer pattern for due date alerts
+3. **Persistence layer**: Database storage for items
+4. **Grade calculator**: Weighted average across all items
+5. **Calendar integration**: Export items to iCal format
+
+All extensions can leverage existing polymorphic infrastructure.
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: November 2025  
+**Team**: Class Tracker (Kayla Fuentes, Rhea Vyragaram, Jocelyn DeHenzel, Vinindi Withanage)
