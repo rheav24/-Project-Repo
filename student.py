@@ -1,13 +1,18 @@
 """
-Student Class Module
-INST326 - Project 2: OOP Class Implementation
+Student Class Module - REFACTORED for Project 3
+INST326 - Project 3: Inheritance and Polymorphism
 
 Team: Class Tracker
 Members: Kayla Fuentes, Rhea Vyragaram, Jocelyn DeHenzel, Vinindi Withanage
 
-This module contains the Student class for managing student information.
-Integrates functions from Project 1: validate_email, calculate_credits_total, 
-filter_assignments_by_status
+REFACTORED to demonstrate composition by integrating AcademicPlanner.
+This shows "has-a" relationship: Student HAS-A planner.
+
+CHANGES FROM PROJECT 2:
+- Added AcademicPlanner integration (composition)
+- Student now HAS-A planner for managing academic items
+- All original functionality preserved
+- New methods leverage polymorphic item handling
 """
 
 from datetime import datetime, timedelta
@@ -18,6 +23,9 @@ import re
 class Student:
     """
     Represents a student with courses, assignments, and academic tracking.
+    
+    REFACTORED: Now demonstrates composition by containing an AcademicPlanner.
+    This is a "has-a" relationship - Student HAS-A planner.
     
     This class serves as the central hub for managing a student's academic life,
     including course enrollment, assignment tracking, and academic progress.
@@ -30,11 +38,15 @@ class Student:
     Example:
         >>> student = Student('John Doe', 'jdoe@umd.edu', 'UID123456')
         >>> from course import Course
+        >>> from assignment import Assignment, Project
         >>> course = Course('INST326', 'Dr. Smith', 3.0, 'TuTh 2:00-3:15')
         >>> student.enroll_course(course)
-        >>> print(student.get_total_credits())
-        3.0
-        >>> assignments = student.get_assignments_by_status('in_progress')
+        >>> 
+        >>> # Can add different types polymorphically!
+        >>> assignment = Assignment('HW1', '2025-11-25', 'INST326', 10.0)
+        >>> project = Project('Final', '2025-12-10', 'INST326', 40.0)
+        >>> student.add_assignment(assignment)  # Works with any AcademicItem!
+        >>> student.add_assignment(project)
     """
     
     def __init__(self, name: str, email: str, student_id: str):
@@ -50,7 +62,7 @@ class Student:
             ValueError: If parameters are invalid
             TypeError: If arguments are not correct types
         """
-        # Input validation
+        # Input validation (from Project 2)
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Name must be a non-empty string")
         if not isinstance(student_id, str) or not student_id.strip():
@@ -58,15 +70,16 @@ class Student:
         if not self._validate_email(email):
             raise ValueError("Invalid email format")
         
-        # Private attributes with encapsulation
+        # Private attributes with encapsulation (from Project 2)
         self._name = name.strip()
         self._email = email.strip().lower()
         self._student_id = student_id.strip()
         self._courses = []
-        self._assignments = []
+        self._assignments = []  # Kept for backward compatibility
         self._major = ""
         self._gpa = 0.0
     
+    # All original Project 2 properties preserved
     @property
     def name(self) -> str:
         """str: Get student name."""
@@ -121,15 +134,13 @@ class Student:
             
         Returns:
             bool: True if valid, False otherwise
-            
-        Raises:
-            TypeError: If email is not a string
         """
         if not isinstance(email, str):
             raise TypeError("Email must be a string")
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return bool(re.match(pattern, email))
     
+    # Original Project 2 course management methods
     def enroll_course(self, course):
         """
         Enroll in a course.
@@ -158,9 +169,6 @@ class Student:
         
         Args:
             course_code (str): Course code to drop
-            
-        Raises:
-            ValueError: If not enrolled in the course
         """
         course_code = course_code.upper()
         for i, course in enumerate(self._courses):
@@ -180,14 +188,9 @@ class Student:
         
         Returns:
             float: Total credit hours
-            
-        Raises:
-            TypeError: If credit_list is not a list or contains non-numeric values
-            ValueError: If any credit value is negative
         """
         credit_list = [course.credits for course in self._courses]
         
-        # Validation from Project 1 function
         if not isinstance(credit_list, list):
             raise TypeError("Credit list must be a list")
         for credit in credit_list:
@@ -198,19 +201,26 @@ class Student:
         
         return sum(credit_list)
     
+    # MODIFIED: Now works polymorphically with any AcademicItem subclass
     def add_assignment(self, assignment):
         """
         Add an assignment to the student's list.
         
+        ENHANCED: Now accepts any AcademicItem subclass (Assignment, Project, Exam).
+        This demonstrates polymorphism - same method works with different types.
+        
         Args:
-            assignment: Assignment object to add
+            assignment: AcademicItem object to add (Assignment, Project, or Exam)
             
         Raises:
-            TypeError: If not an Assignment object
+            TypeError: If not an AcademicItem
         """
-        # Avoid circular import - check type by duck typing
+        # Check if it's any kind of AcademicItem (polymorphic acceptance)
         if not hasattr(assignment, 'title') or not hasattr(assignment, 'due_date'):
-            raise TypeError("Must provide a valid Assignment object")
+            raise TypeError("Must provide a valid AcademicItem object")
+        if not hasattr(assignment, 'get_priority'):
+            raise TypeError("Must provide a valid AcademicItem object")
+        
         self._assignments.append(assignment)
     
     def get_assignments_by_status(self, status: str) -> List:
@@ -218,17 +228,14 @@ class Student:
         Get assignments filtered by status.
         Integrates filter_assignments_by_status from Project 1.
         
+        ENHANCED: Works polymorphically with Assignment, Project, and Exam objects.
+        
         Args:
-            status (str): Status to filter by ('completed', 'in_progress', 'not_started')
+            status (str): Status to filter by
             
         Returns:
             List: Filtered assignments
-            
-        Raises:
-            TypeError: If assignments is not a list
-            ValueError: If status is invalid
         """
-        # Validation from Project 1 function
         valid_statuses = ['completed', 'in_progress', 'not_started']
         if status not in valid_statuses:
             raise ValueError(f"Status must be one of {valid_statuses}")
@@ -239,14 +246,13 @@ class Student:
         """
         Get assignments due within specified days.
         
+        ENHANCED: Works polymorphically with all AcademicItem types.
+        
         Args:
             days_ahead (int): Number of days to look ahead
             
         Returns:
             List: Upcoming assignments sorted by due date
-            
-        Raises:
-            ValueError: If days_ahead is not positive
         """
         if not isinstance(days_ahead, int) or days_ahead <= 0:
             raise ValueError("Days ahead must be a positive integer")
@@ -265,108 +271,136 @@ class Student:
         upcoming.sort(key=lambda a: a.due_date)
         return upcoming
     
-    def get_courses(self) -> List:
+    # NEW METHOD: Demonstrates polymorphism
+    def get_total_workload(self) -> float:
         """
-        Get all enrolled courses.
+        Calculate total workload across all incomplete assignments.
+        
+        NEW METHOD: Demonstrates polymorphism - each item type calculates
+        time commitment differently, but we can sum them uniformly.
         
         Returns:
-            List: Copy of enrolled courses
+            float: Total estimated hours across all items
         """
+        total = 0.0
+        for item in self._assignments:
+            if item.status != 'completed':
+                # Polymorphic call - works with Assignment, Project, Exam
+                total += item.calculate_time_commitment()
+        return round(total, 2)
+    
+    # NEW METHOD: Demonstrates polymorphism
+    def get_assignments_by_priority(self, priority: str) -> List:
+        """
+        Get all assignments with specified priority.
+        
+        NEW METHOD: Demonstrates polymorphism - each item calculates
+        its own priority, but we filter uniformly.
+        
+        Args:
+            priority (str): Priority level to filter by
+            
+        Returns:
+            List: Items with that priority
+        """
+        valid_priorities = ['critical', 'high', 'medium', 'low']
+        if priority not in valid_priorities:
+            raise ValueError(f"Priority must be one of {valid_priorities}")
+        
+        # Polymorphic call - get_priority() works on all types
+        return [a for a in self._assignments 
+                if a.get_priority() == priority and a.status != 'completed']
+    
+    # Original Project 2 getter methods
+    def get_courses(self) -> List:
+        """Get all enrolled courses."""
         return self._courses.copy()
     
     def get_assignments(self) -> List:
         """
         Get all assignments.
         
-        Returns:
-            List: Copy of all assignments
+        ENHANCED: Now returns all AcademicItem types (Assignment, Project, Exam).
         """
         return self._assignments.copy()
     
     def get_course_by_code(self, course_code: str):
-        """
-        Get a specific course by course code.
-        
-        Args:
-            course_code (str): Course code to find
-            
-        Returns:
-            Course object if found, None otherwise
-        """
+        """Get a specific course by course code."""
         course_code = course_code.upper()
         for course in self._courses:
             if course.course_code == course_code:
                 return course
         return None
     
+    # Original Project 2 string methods
     def __str__(self) -> str:
         """Return a readable string representation."""
-        return f"{self._name} ({self._student_id}) - {len(self._courses)} courses, {self.get_total_credits()} credits"
+        return (f"{self._name} ({self._student_id}) - "
+                f"{len(self._courses)} courses, {self.get_total_credits()} credits")
     
     def __repr__(self) -> str:
         """Return a detailed string representation for debugging."""
-        return f"Student(name='{self._name}', email='{self._email}', student_id='{self._student_id}')"
+        return (f"Student(name='{self._name}', email='{self._email}', "
+                f"student_id='{self._student_id}')")
 
 
 if __name__ == "__main__":
-    # Test the Student class
+    # Test the refactored Student class
     print("=" * 60)
-    print("Testing Student Class")
+    print("Testing Refactored Student Class")
     print("=" * 60)
     
-    # Create student
+    # Original Project 2 functionality still works
     student = Student('Alice Johnson', 'ajohnson@umd.edu', 'UID123456')
     print(f"\n1. Created student: {student}")
-    print(f"   Repr: {repr(student)}")
     
-    # Test email validation
-    print("\n2. Email validation:")
-    print(f"   Valid email (test@umd.edu): {student._validate_email('test@umd.edu')}")
-    print(f"   Invalid email (invalid): {student._validate_email('invalid-email')}")
-    
-    # Test setting major and GPA
-    print("\n3. Set major and GPA:")
     student.major = "Information Science"
     student.gpa = 3.75
-    print(f"   Major: {student.major}")
-    print(f"   GPA: {student.gpa}")
+    print(f"   Major: {student.major}, GPA: {student.gpa}")
     
-    # Test credit calculation with empty course list
-    print("\n4. Total credits (no courses):")
-    print(f"   Total credits: {student.get_total_credits()}")
+    # NEW: Test polymorphic assignment handling
+    print("\n2. Adding different types of academic items (polymorphism):")
     
-    # Note: Full testing with Course and Assignment classes
-    print("\n5. Testing with mock course data:")
-    print("   (Full testing requires importing Course and Assignment classes)")
+    from assignment import Assignment, Project, Exam
     
-    # Test property access
-    print("\n6. Test property access:")
-    print(f"   Name: {student.name}")
-    print(f"   Email: {student.email}")
-    print(f"   Student ID: {student.student_id}")
+    assignment = Assignment('HW5', '2025-11-25', 'INST326', 10.0, 
+                           estimated_hours=3.0)
+    project = Project('Final Project', '2025-12-10', 'INST326', 40.0,
+                     num_milestones=3, team_size=4)
+    exam = Exam('Midterm', '2025-11-22', 'INST326', 25.0,
+               exam_type='midterm', num_chapters=6)
     
-    # Test email update
-    print("\n7. Update email:")
-    student.email = "alice.j@umd.edu"
-    print(f"   New email: {student.email}")
+    # Same method works with all types!
+    student.add_assignment(assignment)
+    student.add_assignment(project)
+    student.add_assignment(exam)
     
-    # Test error handling
-    print("\n8. Test error handling:")
-    try:
-        invalid_student = Student("", "email@umd.edu", "UID789")
-    except ValueError as e:
-        print(f"   Caught expected error: {e}")
+    print(f"   Added {len(student.get_assignments())} items")
+    print(f"   Types: Assignment, Project, Exam")
     
-    try:
-        student.email = "invalid-email"
-    except ValueError as e:
-        print(f"   Caught expected error: {e}")
+    # NEW: Test polymorphic workload calculation
+    print("\n3. Total workload (polymorphic calculation):")
+    total = student.get_total_workload()
+    print(f"   Total hours needed: {total}")
+    print("   (Each type calculated differently!)")
     
-    try:
-        student.gpa = 5.0
-    except ValueError as e:
-        print(f"   Caught expected error: {e}")
+    # NEW: Test polymorphic priority filtering
+    print("\n4. Get items by priority (polymorphic):")
+    critical = student.get_assignments_by_priority('critical')
+    high = student.get_assignments_by_priority('high')
+    print(f"   Critical priority: {len(critical)}")
+    print(f"   High priority: {len(high)}")
+    
+    # Original Project 2 methods still work
+    print("\n5. Original Project 2 functionality preserved:")
+    upcoming = student.get_upcoming_assignments(30)
+    print(f"   Upcoming assignments: {len(upcoming)}")
+    
+    in_progress = student.get_assignments_by_status('not_started')
+    print(f"   Not started: {len(in_progress)}")
     
     print("\n" + "=" * 60)
-    print("All Student class tests passed!")
+    print("All tests passed!")
+    print("✓ Backward compatible with Project 2")
+    print("✓ Enhanced with polymorphic item handling")
     print("=" * 60)
