@@ -5,8 +5,8 @@ INST326 - Project 3: Inheritance and Polymorphism
 Team: Class Tracker
 Members: Kayla Fuentes, Rhea Vyragaram, Jocelyn DeHenzel, Vinindi Withanage
 
-This module defines the abstract base class for all academic items (assignments,
-exams, projects) demonstrating inheritance hierarchy and polymorphic behavior.
+This module refactors the existing Assignment class into an inheritance hierarchy.
+The Assignment class from Project 2 now extends this abstract base class.
 """
 
 from abc import ABC, abstractmethod
@@ -18,8 +18,9 @@ class AcademicItem(ABC):
     """
     Abstract base class for all academic items with due dates and priorities.
     
-    This base class defines the common interface that all academic items must
-    implement, enabling polymorphic behavior across different item types.
+    This refactors Project 2's Assignment class to be part of an inheritance
+    hierarchy. The common functionality from Assignment is moved here, and
+    specific implementations are in derived classes.
     
     Attributes:
         title (str): Item title
@@ -44,6 +45,7 @@ class AcademicItem(ABC):
         Raises:
             ValueError: If parameters are invalid
         """
+        # Input validation (from original Assignment class)
         if not isinstance(title, str) or not title.strip():
             raise ValueError("Title must be a non-empty string")
         if not isinstance(course_code, str) or not course_code.strip():
@@ -59,13 +61,16 @@ class AcademicItem(ABC):
         except ValueError:
             raise ValueError("Due date must be in YYYY-MM-DD format")
         
+        # Private attributes with encapsulation (from Project 2)
         self._title = title.strip()
         self._due_date = due_date
         self._course_code = course_code.upper()
         self._weight = float(weight)
         self._status = status
         self._score = None
+        self._submission_date = None
     
+    # Properties (from original Assignment class)
     @property
     def title(self) -> str:
         """str: Get item title."""
@@ -78,7 +83,7 @@ class AcademicItem(ABC):
     
     @property
     def course_code(self) -> str:
-        """str: Get course code."""
+        """str: Get course code (read-only)."""
         return self._course_code
     
     @property
@@ -104,24 +109,14 @@ class AcademicItem(ABC):
         """Optional[float]: Get item score if completed."""
         return self._score
     
-    @abstractmethod
-    def calculate_time_commitment(self) -> float:
-        """
-        Calculate estimated time commitment for this item.
-        
-        Must be implemented by all subclasses with their specific logic.
-        
-        Returns:
-            float: Estimated hours needed
-        """
-        pass
-    
+    # Abstract methods - must be implemented by subclasses
     @abstractmethod
     def get_priority(self) -> str:
         """
         Calculate priority level for this item.
         
         Must be implemented by all subclasses with their specific logic.
+        Each type (Assignment, Project, Exam) calculates priority differently.
         
         Returns:
             str: Priority level ('critical', 'high', 'medium', 'low')
@@ -129,18 +124,23 @@ class AcademicItem(ABC):
         pass
     
     @abstractmethod
-    def get_item_type(self) -> str:
+    def calculate_time_commitment(self) -> float:
         """
-        Get the type of academic item.
+        Calculate estimated time commitment for this item.
+        
+        Must be implemented by all subclasses. Different item types
+        calculate time requirements differently.
         
         Returns:
-            str: Type identifier
+            float: Estimated hours needed
         """
         pass
     
+    # Concrete methods - common implementation for all items (from Project 2 Assignment)
     def is_overdue(self, current_date: str = None) -> bool:
         """
-        Check if item is overdue (common implementation for all items).
+        Check if item is overdue.
+        Integrates is_assignment_overdue from Project 1.
         
         Args:
             current_date (str, optional): Current date in 'YYYY-MM-DD' format
@@ -157,7 +157,8 @@ class AcademicItem(ABC):
     
     def calculate_time_remaining(self) -> Tuple[int, str]:
         """
-        Calculate time remaining until due date (common for all items).
+        Calculate time remaining until due date.
+        Integrates calculate_time_until_due from Project 1.
         
         Returns:
             Tuple[int, str]: (number, unit) where unit is 'days', 'hours', or 'overdue'
@@ -191,6 +192,15 @@ class AcademicItem(ABC):
         
         self._status = 'completed'
         self._score = float(score)
+        
+        if submission_date:
+            try:
+                datetime.strptime(submission_date, '%Y-%m-%d')
+                self._submission_date = submission_date
+            except ValueError:
+                raise ValueError("Submission date must be in YYYY-MM-DD format")
+        else:
+            self._submission_date = datetime.now().strftime('%Y-%m-%d')
     
     def is_completed(self) -> bool:
         """Check if item is completed."""
@@ -204,7 +214,7 @@ class AcademicItem(ABC):
         else:
             time_str = f"Due in {time_info[0]} {time_info[1]}"
         
-        return f"[{self.get_item_type()}] {self._title} [{self._course_code}] - {time_str}"
+        return f"{self._title} [{self._course_code}] - {time_str} (Priority: {self.get_priority()})"
     
     def __repr__(self) -> str:
         """Return detailed representation."""
