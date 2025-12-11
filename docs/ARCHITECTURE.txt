@@ -526,6 +526,45 @@ All extensions can leverage existing polymorphic infrastructure.
 
 ---
 
+```markdown
+## Data Persistence & I/O (Project 4)
+
+### Persistence Layer
+
+We added a dedicated module **`academic_io.py`** to handle all file I/O:
+
+- `save_planner_to_json(planner, path)`  
+  Serializes an `AcademicPlanner` and all contained `AcademicItem` objects into JSON.
+
+- `load_planner_from_json(path, default_student_name)`  
+  Reconstructs an `AcademicPlanner` from JSON, creating the correct `Assignment`, `Project`, and `Exam` subclasses.
+
+- `import_items_from_csv(csv_path)`  
+  Reads a CSV file and builds `AcademicItem` objects based on the `type` column.
+
+- `export_deadlines_to_csv(planner, csv_path, days_ahead)`  
+  Uses `AcademicPlanner.get_upcoming_deadlines()` and writes a CSV report of upcoming work.
+
+All file handling uses:
+
+- `pathlib.Path` for paths
+- `with` statements for safe I/O
+- Exception handling for missing files and corrupted JSON
+
+### Testing Strategy (Project 4)
+
+- **Unit Tests**
+  - Validate basic I/O behavior (save, load, missing file, corrupted JSON)
+- **Integration Tests**
+  - `AcademicPlanner` + `Assignment`/`Project`/`Exam` + `academic_io`
+  - Check that item types and counts are preserved through save/load
+- **System Tests**
+  - Full workflows: CSV import → planner → JSON save → JSON load → CSV export
+  - Completion statistics preserved across persistence
+
+See `test_project4_persistence.py` for details.
+
+
 **Document Version**: 1.0  
 **Last Updated**: November 2025  
 **Team**: Class Tracker (Kayla Fuentes, Rhea Vyragaram, Jocelyn DeHenzel, Vinindi Withanage)
