@@ -14,7 +14,7 @@ import json
 import csv
 
 from academic_item import AcademicItem
-from assignment_types import Assignment, Project, Exam
+from assignment import Assignment, Project, Exam
 from academic_planner import AcademicPlanner
 
 
