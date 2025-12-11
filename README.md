@@ -10,6 +10,43 @@
 
 Class Tracker is a comprehensive academic management system for college students. **Project 3** extends our existing system (Projects 1 & 2) with advanced OOP principles including inheritance hierarchies, polymorphic behavior, abstract base classes, and composition relationships.
 
+## 🧩 Project 4: Data Persistence, I/O, and End-to-End Testing
+
+Project 4 extends Class Tracker into a **complete, persistent system**:
+
+### New Features
+
+- 💾 **Data Persistence**
+  - Save and load full `AcademicPlanner` state to/from JSON
+  - Student now HAS-A planner and can call `save_planner_state()` and `load_planner_state()`
+
+- 📥 **Import / 📤 Export**
+  - `import_items_from_csv()` reads standard CSV files and creates `Assignment`, `Project`, and `Exam` objects
+  - `export_deadlines_to_csv()` writes upcoming deadlines to a CSV report that users can open in Excel
+
+- 🧪 **Comprehensive Testing (Project 4)**
+  - `test_project4_persistence.py`:
+    - Unit tests for persistence helpers
+    - Integration tests for planner + items + I/O
+    - System tests for full workflows (import → planner → save/load → export)
+  - All tests use Python’s `unittest` framework
+
+### Example: Saving and Loading Planner State
+
+```python
+from student import Student
+
+student = Student("Alex Johnson", "alex@umd.edu", "UID123456")
+
+# ... enroll courses, add assignments, etc. ...
+
+# Save academic planner state
+student.save_planner_state("data/alex_planner.json")
+
+# Later: load it back
+student.load_planner_state("data/alex_planner.json")
+print(student.planner.get_total_workload())
+
 ### What's New in Project 3
 
 ✨ **Abstract Base Classes** - Interface enforcement with Python's `abc` module  
