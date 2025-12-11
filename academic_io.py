@@ -19,6 +19,7 @@ import csv
 import json
 from pathlib import Path
 from typing import Any, Dict, List
+from datetime import datetime
 
 from academic_item import AcademicItem
 from assignment import Assignment, Project, Exam
@@ -98,7 +99,7 @@ def _deserialize_item(data: Dict[str, Any]) -> AcademicItem:
             due_date,
             course_code,
             weight,
-            estimated_hours=float(data.get("estimated_hours", 0.0)),
+            estimated_hours=float(data.get("estimated_hours", 2.0)),
         )
         notes = data.get("notes")
         if notes:
@@ -113,7 +114,7 @@ def _deserialize_item(data: Dict[str, Any]) -> AcademicItem:
             due_date,
             course_code,
             weight,
-            num_milestones=int(data.get("num_milestones", 0)),
+            num_milestones=int(data.get("num_milestones", 1)),
             team_size=int(data.get("team_size", 1)),
         )
         for m in data.get("milestones", []):
@@ -132,7 +133,7 @@ def _deserialize_item(data: Dict[str, Any]) -> AcademicItem:
             course_code,
             weight,
             exam_type=data.get("exam_type", "exam"),
-            num_chapters=int(data.get("num_chapters", 0)),
+            num_chapters=int(data.get("num_chapters", 5)),
         )
         sg = data.get("study_guide")
         if sg:
@@ -262,17 +263,17 @@ def import_items_from_csv(csv_path: str | Path,
                 weight = float(weight_str)
 
                 if item_type == "Assignment":
-                    est = float((row.get("estimated_hours") or "0").strip() or 0)
+                    est = float((row.get("estimated_hours") or "2.0").strip() or 2.0)
                     item = Assignment(title, due_date, course_code, weight,
                                       estimated_hours=est)
                 elif item_type == "Project":
-                    num_milestones = int((row.get("num_milestones") or "0").strip() or 0)
+                    num_milestones = int((row.get("num_milestones") or "1").strip() or 1)
                     team_size = int((row.get("team_size") or "1").strip() or 1)
                     item = Project(title, due_date, course_code, weight,
                                    num_milestones=num_milestones, team_size=team_size)
                 elif item_type == "Exam":
                     exam_type = (row.get("exam_type") or "exam").strip()
-                    num_chapters = int((row.get("num_chapters") or "0").strip() or 0)
+                    num_chapters = int((row.get("num_chapters") or "5").strip() or 5)
                     item = Exam(title, due_date, course_code, weight,
                                 exam_type=exam_type, num_chapters=num_chapters)
                 else:
