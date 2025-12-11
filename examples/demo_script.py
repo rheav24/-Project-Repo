@@ -357,3 +357,44 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def demo_persistence_features():
+    """Demonstrate Project 4 persistence: JSON + CSV."""
+    print_section("8. PERSISTENCE & I/O DEMONSTRATION (PROJECT 4)")
+
+    planner = AcademicPlanner("Persistence Demo Student")
+    planner.add_item(
+        Assignment("HW Persistence", "2025-12-01", "INST326", 10.0,
+                   estimated_hours=3.0)
+    )
+    planner.add_item(
+        Exam("Final Persistence", "2025-12-15", "INST326", 30.0,
+             exam_type="final", num_chapters=8)
+    )
+
+    print("\n📌 Current planner state:")
+    print(f"   {planner}")
+    print(f"   Total workload: {planner.get_total_workload()} hours")
+
+    import tempfile
+    tmpdir = tempfile.TemporaryDirectory()
+    json_path = Path(tmpdir.name) / "demo_planner.json"
+    csv_path = Path(tmpdir.name) / "demo_items.csv"
+
+    print("\n📌 Saving planner to JSON...")
+    planner.save_to_json(json_path)
+    print(f"   Saved to: {json_path}")
+
+    print("\n📌 Exporting items to CSV...")
+    planner.export_to_csv(csv_path)
+    print(f"   Exported to: {csv_path}")
+
+    print("\n📌 Loading planner back from JSON into a new instance...")
+    loaded = AcademicPlanner("Loaded Demo")
+    loaded.load_from_json(json_path)
+    print(f"   Loaded planner: {loaded}")
+    print(f"   Loaded total workload: {loaded.get_total_workload()} hours")
+
+    print("\n   ✓ Demonstrated JSON save/load and CSV export (Project 4 requirement)")
+
