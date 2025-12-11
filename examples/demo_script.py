@@ -305,6 +305,62 @@ def demo_completion_workflow():
     print(f"   Homework priority after completion: {hw.get_priority()} (was high)")
 
 
+from pathlib import Path
+from academic_io import (
+    save_planner_to_json,
+    load_planner_from_json,
+    import_items_from_csv,
+    export_deadlines_to_csv,
+)
+
+
+def demo_persistence_and_io():
+    """Demonstrate Project 4 persistence, import, and export features."""
+    print_section("8. PROJECT 4: DATA PERSISTENCE & I/O DEMONSTRATION")
+
+    planner = AcademicPlanner("Demo Student")
+
+    # Add a couple of items
+    planner.add_item(Assignment('HW Persistence', '2025-11-25', 'INST326', 10.0,
+                                estimated_hours=3.0))
+    planner.add_item(Exam('Final Persistence', '2025-12-15', 'INST326', 30.0,
+                          exam_type='final', num_chapters=8))
+
+    # 1. Save planner to JSON
+    json_path = Path("demo_data") / "planner_state.json"
+    print(f"\n📁 Saving planner to JSON: {json_path}")
+    save_planner_to_json(planner, json_path)
+    print("   ✓ Planner saved")
+
+    # 2. Load planner from JSON
+    print(f"\n📁 Loading planner from JSON: {json_path}")
+    loaded_planner = load_planner_from_json(json_path, default_student_name="Loaded Demo")
+    print(f"   ✓ Loaded planner with {len(loaded_planner.get_all_items())} items")
+
+    # 3. Import items from CSV (if file exists)
+    csv_import_path = Path("demo_data") / "sample_items.csv"
+    print(f"\n📥 Importing items from CSV (if present): {csv_import_path}")
+    if csv_import_path.exists():
+        imported_items = import_items_from_csv(csv_import_path)
+        for item in imported_items:
+            loaded_planner.add_item(item)
+        print(f"   ✓ Imported and added {len(imported_items)} items to loaded planner")
+    else:
+        print("   ⚠ No CSV found; skipping import demonstration")
+
+    # 4. Export upcoming deadlines to CSV
+    csv_export_path = Path("demo_data") / "upcoming_deadlines.csv"
+    print(f"\n📤 Exporting upcoming deadlines to CSV: {csv_export_path}")
+    export_deadlines_to_csv(loaded_planner, csv_export_path, days_ahead=60)
+    print("   ✓ Deadlines exported")
+
+    print("\n   💡 This demonstrates:")
+    print("      • JSON save/load of full planner state")
+    print("      • CSV import of new items")
+    print("      • CSV export of upcoming deadlines")
+    print("      • Error-safe I/O using pathlib + with-statements")
+
+
 def main():
     """Run all demonstrations."""
     print("\n")
@@ -329,6 +385,8 @@ def main():
     demo_specialized_features()
     demo_method_overriding()
     demo_completion_workflow()
+    demo_persistence_and_io()
+
     
     # Final summary
     print("\n" + "=" * 70)
@@ -357,44 +415,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def demo_persistence_features():
-    """Demonstrate Project 4 persistence: JSON + CSV."""
-    print_section("8. PERSISTENCE & I/O DEMONSTRATION (PROJECT 4)")
-
-    planner = AcademicPlanner("Persistence Demo Student")
-    planner.add_item(
-        Assignment("HW Persistence", "2025-12-01", "INST326", 10.0,
-                   estimated_hours=3.0)
-    )
-    planner.add_item(
-        Exam("Final Persistence", "2025-12-15", "INST326", 30.0,
-             exam_type="final", num_chapters=8)
-    )
-
-    print("\n📌 Current planner state:")
-    print(f"   {planner}")
-    print(f"   Total workload: {planner.get_total_workload()} hours")
-
-    import tempfile
-    tmpdir = tempfile.TemporaryDirectory()
-    json_path = Path(tmpdir.name) / "demo_planner.json"
-    csv_path = Path(tmpdir.name) / "demo_items.csv"
-
-    print("\n📌 Saving planner to JSON...")
-    planner.save_to_json(json_path)
-    print(f"   Saved to: {json_path}")
-
-    print("\n📌 Exporting items to CSV...")
-    planner.export_to_csv(csv_path)
-    print(f"   Exported to: {csv_path}")
-
-    print("\n📌 Loading planner back from JSON into a new instance...")
-    loaded = AcademicPlanner("Loaded Demo")
-    loaded.load_from_json(json_path)
-    print(f"   Loaded planner: {loaded}")
-    print(f"   Loaded total workload: {loaded.get_total_workload()} hours")
-
-    print("\n   ✓ Demonstrated JSON save/load and CSV export (Project 4 requirement)")
 
