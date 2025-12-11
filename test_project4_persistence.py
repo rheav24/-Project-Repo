@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from assignment_types import Assignment, Project, Exam
+from assignment import Assignment, Project, Exam
 from academic_planner import AcademicPlanner
 from academic_io import (
     save_planner_to_json,
