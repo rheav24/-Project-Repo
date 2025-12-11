@@ -136,18 +136,34 @@ class AcademicItem(ABC):
         """
         pass
     
+    @abstractmethod
+    def get_item_type(self) -> str:
+        """
+        Return the type of this academic item.
+        
+        Must be implemented by all subclasses to identify their type.
+        
+        Returns:
+            str: Item type identifier (e.g., 'ASSIGNMENT', 'PROJECT', 'EXAM')
+        """
+        pass
+    
     # Concrete methods - common implementation for all items (from Project 2 Assignment)
     def is_overdue(self, current_date: str = None) -> bool:
         """
-        Check if item is overdue.
+        Check if item is overdue and not completed.
         Integrates is_assignment_overdue from Project 1.
         
         Args:
             current_date (str, optional): Current date in 'YYYY-MM-DD' format
             
         Returns:
-            bool: True if overdue, False otherwise
+            bool: True if overdue and not completed, False otherwise
         """
+        # Completed items are never considered overdue
+        if self._status == 'completed':
+            return False
+        
         try:
             due = datetime.strptime(self._due_date, '%Y-%m-%d')
             current = datetime.strptime(current_date, '%Y-%m-%d') if current_date else datetime.now()

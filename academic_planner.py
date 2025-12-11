@@ -466,7 +466,15 @@ class AcademicPlanner:
 
                         if "ASSIGNMENT" in item_type:
                             est = float(row.get("estimated_hours", 0.0) or 0.0)
-                            item = Assignment(title, due_date, course_code, weight, est)
+                            item = Assignment(
+                                title, 
+                                due_date, 
+                                course_code, 
+                                weight,
+                                assignment_type='homework',
+                                status='not_started',
+                                estimated_hours=est
+                            )
                         elif "PROJECT" in item_type:
                             milestones = int(row.get("num_milestones", 0) or 0)
                             team_size = int(row.get("team_size", 1) or 1)
