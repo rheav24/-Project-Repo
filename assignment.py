@@ -138,6 +138,18 @@ class Assignment(AcademicItem):
         """
         return self._estimated_hours
     
+    # POLYMORPHIC METHOD #3: Implement abstract method from base class
+    def get_item_type(self) -> str:
+        """
+        Return the type of this academic item.
+        
+        POLYMORPHIC IMPLEMENTATION: Identifies this as an assignment.
+        
+        Returns:
+            str: 'ASSIGNMENT'
+        """
+        return 'ASSIGNMENT'
+    
     # All original Project 2 methods preserved below
     
     def add_notes(self, notes: str):
@@ -253,6 +265,15 @@ class Project(AcademicItem):
         else:
             return 'low'
     
+    def get_item_type(self) -> str:
+        """
+        POLYMORPHIC: Return the type of this academic item.
+        
+        Returns:
+            str: 'PROJECT'
+        """
+        return 'PROJECT'
+    
     def add_milestone(self, title: str, due_date: str):
         """Add a project milestone."""
         try:
@@ -351,6 +372,15 @@ class Exam(AcademicItem):
         else:
             return 'medium'
     
+    def get_item_type(self) -> str:
+        """
+        POLYMORPHIC: Return the type of this academic item.
+        
+        Returns:
+            str: 'EXAM-{type}' (e.g., 'EXAM-MIDTERM', 'EXAM-FINAL')
+        """
+        return f'EXAM-{self._exam_type.upper()}'
+    
     def set_study_guide(self, guide: str):
         """Set study guide content or URL."""
         self._study_guide = guide.strip()
@@ -389,6 +419,10 @@ if __name__ == "__main__":
     print("\n3. Time commitment (new polymorphic method):")
     print(f"   Estimated hours: {assignment.calculate_time_commitment()}")
     
+    # Test item type - NEW POLYMORPHIC METHOD
+    print("\n3b. Item type (new polymorphic method):")
+    print(f"   Type: {assignment.get_item_type()}")
+    
     # All original Project 2 methods still work
     print("\n4. Original Project 2 functionality preserved:")
     assignment.add_notes("Test all edge cases")
@@ -403,6 +437,7 @@ if __name__ == "__main__":
     print(f"   {project}")
     print(f"   Time commitment: {project.calculate_time_commitment()}h")
     print(f"   Priority: {project.get_priority()}")
+    print(f"   Type: {project.get_item_type()}")
     
     print("\n6. New Exam class:")
     exam = Exam('Midterm', '2025-11-22', 'INST326', 25.0,
@@ -410,13 +445,15 @@ if __name__ == "__main__":
     print(f"   {exam}")
     print(f"   Time commitment: {exam.calculate_time_commitment()}h")
     print(f"   Priority: {exam.get_priority()}")
+    print(f"   Type: {exam.get_item_type()}")
     
     # Demonstrate polymorphism
     print("\n7. Polymorphism demonstration:")
     items = [assignment, project, exam]
     print("   All items using same interface:")
     for item in items:
-        print(f"   - {item.title}: {item.calculate_time_commitment()}h, "
+        print(f"   - {item.title}: {item.get_item_type()}, "
+              f"{item.calculate_time_commitment()}h, "
               f"Priority: {item.get_priority()}")
     
     print("\n" + "=" * 60)
