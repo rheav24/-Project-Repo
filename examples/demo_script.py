@@ -14,7 +14,7 @@ This script demonstrates all key features of Project 3:
 
 from datetime import datetime, timedelta
 from academic_item import AcademicItem
-from assignment_types import Assignment, Project, Exam
+from assignment import Assignment, Project, Exam
 from academic_planner import AcademicPlanner
 
 
