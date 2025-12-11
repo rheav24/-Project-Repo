@@ -147,14 +147,17 @@ def _deserialize_item(data: Dict[str, Any]) -> AcademicItem:
 
     # Restore status/score if present
     status = data.get("status")
-    if status in {"completed", "in_progress", "not_started"}:
-        item.status = status
     score = data.get("score")
-    if score is not None:
+    
+    # If completed with a score, use mark_completed
+    if status == "completed" and score is not None:
         try:
-            item.score = float(score)
+            item.mark_completed(float(score))
         except (TypeError, ValueError):
-            pass
+            # If mark_completed fails, just set status
+            item.status = status
+    elif status in {"completed", "in_progress", "not_started"}:
+        item.status = status
 
     return item
 
