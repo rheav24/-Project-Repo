@@ -465,7 +465,7 @@ class AcademicPlanner:
                         weight = float(row["weight"])
 
                         if "ASSIGNMENT" in item_type:
-                            est = float(row.get("estimated_hours", 0.0) or 0.0)
+                            est = float(row.get("estimated_hours", 2.0) or 2.0)
                             item = Assignment(
                                 title, 
                                 due_date, 
@@ -476,7 +476,7 @@ class AcademicPlanner:
                                 estimated_hours=est
                             )
                         elif "PROJECT" in item_type:
-                            milestones = int(row.get("num_milestones", 0) or 0)
+                            milestones = int(row.get("num_milestones", 1) or 1)
                             team_size = int(row.get("team_size", 1) or 1)
                             item = Project(
                                 title,
@@ -488,7 +488,7 @@ class AcademicPlanner:
                             )
                         elif "EXAM" in item_type:
                             exam_type = row.get("exam_type", "exam")
-                            chapters = int(row.get("num_chapters", 0) or 0)
+                            chapters = int(row.get("num_chapters", 5) or 5)
                             item = Exam(
                                 title,
                                 due_date,
