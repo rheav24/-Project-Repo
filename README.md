@@ -1,4 +1,5 @@
-# Class Tracker - Project 3: Inheritance & Polymorphism
+# Class Tracker - Project 4: Inheritance & Polymorphism
+VIDEO LINK: https://www.youtube.com/watch?v=rjtaJFkNAls 
 
 **INST326 - Object-Oriented Programming for Information Science**  
 **Team**: Class Tracker  
